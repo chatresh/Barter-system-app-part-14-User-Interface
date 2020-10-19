@@ -1,110 +1,163 @@
-import React, { Component} from 'react';
-import {StyleSheet, View, Text,TouchableOpacity} from 'react-native';
-import { DrawerItems} from 'react-navigation-drawer'
-import {Avatar,Icon,Input} from 'react-native-elements'
-import * as ImagePicker from 'expo-image-picker'
-import firebase from 'firebase';
-import db from '../config'
+import React, { Component } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  Platform,
+} from "react-native";
+import { DrawerItems } from "react-navigation-drawer";
+import { Avatar } from "react-native-elements";
+import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
+import firebase from "firebase";
+import db from "../config";
+import { Icon } from "react-native-elements";
+
 import { RFValue } from "react-native-responsive-fontsize";
 
-export default class CustomSideBarMenu extends Component{
-  constructor(){
-    super()
-    this.state={
-      image:"#",
-      name:'',
-      userId:firebase.auth().currentUser.email,
-      docId:''
+export default class customSideBarMenu extends Component {
+  state = {
+    userId: firebase.auth().currentUser.email,
+    image: "#",
+    name: "",
+    docId: "",
+  };
+
+  selectPicture = async () => {
+    const { cancelled, uri } = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!cancelled) {
+      this.uploadImage(uri, this.state.userId);
     }
-  } 
-  
-   getUserProfile=()=>{
-      db.collection('users').where("email_id","==",this.state.userId)
-    .onSnapshot((snapshot)=>{
-      snapshot.forEach((doc)=>{
-        this.setState({
-          name:doc.data().first_name + " " + doc.data().last_name,
-          docId:doc.id,
-          image:doc.data().image
-          })
+  };
+
+  uploadImage = async (uri, imageName) => {
+    var response = await fetch(uri);
+    var blob = await response.blob();
+
+    var ref = firebase
+      .storage()
+      .ref()
+      .child("user_profiles/" + imageName);
+
+    return ref.put(blob).then((response) => {
+      this.fetchImage(imageName);
+    });
+  };
+
+  fetchImage = (imageName) => {
+    var storageRef = firebase
+      .storage()
+      .ref()
+      .child("user_profiles/" + imageName);
+
+    // Get the download URL
+    storageRef
+      .getDownloadURL()
+      .then((url) => {
+        this.setState({ image: url });
       })
-    })
-   }
+      .catch((error) => {
+        this.setState({ image: "#" });
+      });
+  };
 
-  fetchImage=async(imageName)=>{
-    var ref = firebase.storage().ref().child("user_profiles/"+imageName)
-   ref.getDownloadURL().then((url)=>{
-     this.setState({
-       image:url
-     })
-   })
-   .catch((error)=>{
-     this.setState({image:"#"})
-   })
+  getUserProfile() {
+    db.collection("users")
+      .where("email_id", "==", this.state.userId)
+      .onSnapshot((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          this.setState({
+            name: doc.data().first_name + " " + doc.data().last_name,
+            docId: doc.id,
+            image: doc.data().image,
+          });
+        });
+      });
   }
 
-  uploadImage=async(uri,imageName)=>{
-    var response = await fetch (uri)
-    var blob = await response.blob()
-    var ref = firebase.storage().ref().child("user_profiles/"+imageName)
-
-    return(
-      ref.put(blob).then((response)=>{
-        this.fetchImage(imageName)
-      })
-    )
-  }
-  
-
-  selectPicture=async()=>{
-    const {uri,cancelled} = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes:ImagePicker.MediaTypeOptions.All,
-      allowsEditing:true,
-      aspect:[4,3],
-      quality:1,
-    })
-    if(!cancelled){
-      this.uploadImage(uri,this.state.userId)
-    }
-  }
-
-  componentDidMount=()=>{
+  componentDidMount() {
+    this.fetchImage(this.state.userId);
     this.getUserProfile();
-     this.fetchImage(this.state.userId)
   }
 
-  render(){
-    return(
-      <View style={{flex:1}}>
-      <View style={{flex:0.5,alignItems:"center",backgroundColor:"orange"}}>
-      <Avatar
-      rounded
-      source={{uri:this.state.image}}
-      size="large"
-      onPress={()=>{
-        this.selectPicture();
-      }}
-      containerStyle={styles.imageContainer}
-      showEditButton
-      />
-      <Text style={{fontWeigth:"100",fontSize:RFValue(20),paddingTop:RFValue(4)}}>{this.state.name}</Text>
-      </View>
-        <View style={styles.drawerItemsContainer}>
-          <DrawerItems {...this.props}/>
+  render() {
+    return (
+      <View style={{ flex: 1 }}>
+        <View
+          style={{
+            flex: 0.3,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#32867d",
+          }}
+        >
+          <Avatar
+            rounded
+            source={{
+              uri: this.state.image,
+            }}
+            size={"xlarge"}
+            onPress={() => this.selectPicture()}
+            showEditButton
+          />
+
+          <Text
+            style={{
+              fontWeight: "300",
+              fontSize: RFValue(20),
+              color: "#fff",
+              padding: RFValue(10),
+            }}
+          >
+            {this.state.name}
+          </Text>
         </View>
-        <View style={styles.logOutContainer}>
-          <TouchableOpacity style={styles.logOutButton}
-          onPress = {() => {
-              this.props.navigation.navigate('WelcomeScreen')
-              firebase.auth().signOut()
-          }}>
-            <Text>Log Out</Text>
+        <View style={{ flex: 0.6 }}>
+          <DrawerItems {...this.props} />
+        </View>
+        <View style={{ flex: 0.1 }}>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              height: "100%",
+            }}
+            onPress={() => {
+              this.props.navigation.navigate("WelcomeScreen");
+              firebase.auth().signOut();
+            }}
+          >
+            <Icon
+              name="logout"
+              type="antdesign"
+              size={RFValue(20)}
+              iconStyle={{ paddingLeft: RFValue(10) }}
+            />
+
+            <Text
+              style={{
+                fontSize: RFValue(15),
+                fontWeight: "bold",
+                marginLeft: RFValue(30),
+              }}
+            >
+              Log Out
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
-    )
+    );
   }
 }
+
 var styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -115,24 +168,25 @@ var styles = StyleSheet.create({
   logOutContainer: {
     flex: 0.2,
     justifyContent: "flex-end",
-    paddingBottom: RFValue(30),
+    paddingBottom: 30,
+    flexDirection: "row",
   },
   logOutButton: {
-    height: RFValue(30),
-    width: "100%",
+    height: 30,
+    width: "85%",
     justifyContent: "center",
-    padding: RFValue(30),
+    padding: 10,
   },
   imageContainer: {
     flex: 0.75,
     width: "40%",
     height: "20%",
-    marginLeft: RFValue(20),
-    marginTop: RFValue(30),
-    borderRadius: RFValue(40),
+    marginLeft: 20,
+    marginTop: 30,
+    borderRadius: 40,
   },
   logOutText: {
-    fontSize: RFValue(30),
+    fontSize: 30,
     fontWeight: "bold",
   },
 });

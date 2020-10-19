@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     },
     button:{
       width:"15%",
-      height:RFValue(50),
+      height:RFValue(25),
       justifyContent:'center',
       alignItems:'center',
       borderRadius:RFValue(10),

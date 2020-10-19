@@ -16,20 +16,35 @@ export const AppDrawerNavigator = createDrawerNavigator(
  {
    Home:{
      screen:BottomNavigator,
-     },
-   Settings:{
-     screen:settings,
+      navigationOptions:{
+       drawerIcon:<Icon name="home" type="font-awesome" />
+     }
      },
   MyBarters : {
     screen : MyBarters,
+    navigationOptions:{
+       drawerIcon:<Icon name="gift" type="font-awesome" />
+     }
     
   },
-   RecievedItems:{
-     screen:MyRecievedItems,
-    },
      
    Notification:{
      screen:NotificationScreen,
+     navigationOptions:{
+       drawerIcon:<Icon name="bell" type="font-awesome" />
+     }
+     },
+   RecievedItems:{
+     screen:MyRecievedItems,
+     navigationOptions:{
+       drawerIcon:<Icon name="gift" type="font-awesome" />
+     }
+    },
+      Settings:{
+     screen:settings,
+     navigationOptions:{
+       drawerIcon:<Icon name="settings" type="fontawesome5" />
+     }
      },
 
  },

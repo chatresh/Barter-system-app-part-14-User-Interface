@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
         height: RFValue(40),
         borderBottomWidth: 1.5,
         borderColor : '#ff8a65',
-        fontSize: RFValue(20),
+        fontSize: RFValue(30),
         margin:RFValue(10),
         paddingLeft:RFValue(10)
     },
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor:"#ffff",
         marginRight:RFValue(30),
-        marginLeft :RFValue(450),
+        marginLeft :RFValue(180),
         marginTop:RFValue(80),
         marginBottom:RFValue(80),
     },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     },
     buttonText:{
         color:"#34857e",
-        fontWeight:'200',
-        fontSize:20
+        fontWeight:'1000',
+        fontSize:RFValue(20)
     }
 })

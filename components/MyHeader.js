@@ -31,7 +31,7 @@ BellIconWithBadge = () => {
  return(
    
    <View>
-      <Icon name='bell' type = 'font-awesome' color='orange' size = {RFValue(25)}
+      <Icon name='bell' type = 'font-awesome' color='orange' size = {25}
       onPress={()=>{
        this.props.navigation.navigate("Notification")
       }}
@@ -39,7 +39,7 @@ BellIconWithBadge = () => {
       <Text>notifications</Text>
       <Badge 
       value = {this.state.value} 
-      containerStyle = {{position:"absolute",top:RFValue(-4),right:RFValue(15)}}
+      containerStyle = {{position:"absolute",top:-4,right:15}}
 
       />
    </View>
